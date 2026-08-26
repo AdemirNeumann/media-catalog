@@ -30,3 +30,9 @@ Thumbs.db
 # Temporary files
 *.tmp
 *.temp
+
+# AI / agent tooling
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
