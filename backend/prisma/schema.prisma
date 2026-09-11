@@ -1,6 +1,6 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
+  provider        = "prisma-client"
+  output          = "../generated/prisma"
   previewFeatures = ["driverAdapters"]
 }
 
@@ -10,15 +10,97 @@ datasource db {
 }
 
 model User {
-  id String @id @default(uuid())
+  id              String          @id @default(uuid())
+  name            String
+  email           String          @unique
+  password        String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  role            Role            @default(USER)
+  createdContents Content[]       @relation("CreatedContents")
+  favorites       Favorite[]
+  reviews         Review[]
+  progress        WatchProgress[]
+}
 
-  name String
+model Content {
+  id          String          @id @default(uuid())
+  title       String
+  description String?
+  type        MediaType
+  status      ContentStatus
+  releaseYear Int?
+  coverUrl    String?
+  createdById String
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  createdBy   User            @relation("CreatedContents", fields: [createdById], references: [id])
+  favorites   Favorite[]
+  reviews     Review[]
+  progress    WatchProgress[]
+  genres      Genre[]         @relation("ContentToGenre")
+}
 
-  email String @unique
+model Genre {
+  id       String    @id @default(uuid())
+  name     String    @unique
+  contents Content[] @relation("ContentToGenre")
+}
 
-  password String
-
+model Favorite {
+  id        String   @id @default(uuid())
+  userId    String
+  contentId String
   createdAt DateTime @default(now())
-
   updatedAt DateTime @updatedAt
+  content   Content  @relation(fields: [contentId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  rating    Int
+  comment   String?
+  userId    String
+  contentId String
+  createdAt DateTime @default(now())
+  content   Content  @relation(fields: [contentId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, contentId])
+}
+
+model WatchProgress {
+  id             String        @id @default(uuid())
+  currentEpisode Int?
+  currentChapter Int?
+  status         ContentStatus
+  userId         String
+  contentId      String
+  content        Content       @relation(fields: [contentId], references: [id])
+  user           User          @relation(fields: [userId], references: [id])
+
+  @@unique([userId, contentId])
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum MediaType {
+  MOVIE
+  ANIME
+  DONGHUA
+  BOOK
+  MANHUA
+  MANGA
+  SERIES
+}
+
+enum ContentStatus {
+  WATCHING
+  COMPLETED
+  DROPPED
+  PLAN_TO_WATCH
 }
