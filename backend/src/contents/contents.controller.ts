@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, Post, UseGuards} from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { ContentsService } from './contents.service';
 import { CreateContentDto } from './dto/create-content.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { UpdateContentDto } from './dto/update-content.dto';
 
 @Controller('contents')
 export class ContentsController {
@@ -22,5 +23,17 @@ export class ContentsController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.contentsService.findOne(id);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  update(@Param('id') id: string, @Body() data: UpdateContentDto) {
+    return this.contentsService.update(id, data);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard)
+  remove(@Param('id') id: string) {
+    return this.contentsService.remove(id);
   }
 }

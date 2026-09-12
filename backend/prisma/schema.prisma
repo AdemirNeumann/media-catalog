@@ -55,6 +55,8 @@ model Favorite {
   updatedAt DateTime @updatedAt
   content   Content  @relation(fields: [contentId], references: [id])
   user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, contentId])
 }
 
 model Review {
